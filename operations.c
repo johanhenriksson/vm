@@ -108,3 +108,8 @@ void mop_lw(word address, byte rsrc, byte rdest, word offset)
 {
 	mem_put_instr(address, OP_LW, rdest, rsrc, 0, offset);
 }
+
+void mop_j(word address, word location)
+{
+	mem_put_instr(address, OP_J, 0, 0, 0, location);
+}

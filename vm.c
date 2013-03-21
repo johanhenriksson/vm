@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
 	mop_add(8,  1, R_ZERO, R_ZERO, 4);  // r1 = 4
 	mop_add(16, 2, R_ZERO, R_ZERO, in); // r2 = in
-	//word address, byte rsrc, byte rdest, word offset
+
 	mop_sw(24, // Instruction address
 	   	   2,  // Source Word Register = r2
 		   1,  // Destination Address Register = r1
@@ -35,18 +35,13 @@ int main(int argc, char* argv[])
 		   1,  // Source address register = r1
 		   7,  // Destination register = r7
 		   0); // Offset
-	memory[40] = OP_EXIT; // exit op
-
-    
+	
+	mop_j(64, 8);
 
 	vm_run(8);
 
 	print_reg(2);
 	print_reg(7); // print destination r7
-
-	word* w = (word*)(memory + 4);
-	
-	printf("Memory val: %d\n", *w);
 
 	vm_exit();
 
@@ -82,6 +77,8 @@ void vm_init()
  */
 void vm_load(char* image)
 {
+	printf("Loading image '%s'...\n", image);
+
 	FILE *fp = fopen(image, "rb");
 	if (fp == NULL) 
 	{
@@ -127,13 +124,15 @@ void vm_run(int at)
 
 void vm_exit(int val)
 {
-	running = false;
-	exitval = val;
+	if (!running) return;
 
 	free(memory);
 	free(registers);
 
-	printf("Exited with value %d\n", val);
+	running = false;
+	exitval = val;
+
+	printf("Exited with value %d\n\n", val);
 }
 
 /**
@@ -227,6 +226,10 @@ void print_instr(Instruction* instr)
 {
 	switch(instr->op)
 	{
+		case OP_NAP:
+			printf("NAP\n");
+			return;
+
 		case OP_ADD: 
 			printf("ADD   R%d = R%d(%d) + R%d(%d) + %d\n", 
 				   instr->rd, 
@@ -236,15 +239,19 @@ void print_instr(Instruction* instr)
 			return;
 
 		case OP_LW:
-			printf("LW    R%d = M[%d](%d)\n", 
+			printf("LW    R%d = M[0x%x](%d)\n", 
 				   instr->rd,
 				   instr->r1 + instr->k, mem_load_int(registers[instr->r1] + instr->k));
 			return;
 
 		case OP_SW:
-			printf("SW    M[%d] = R%d(%d)\n",
+			printf("SW    M[0x%x] = R%d(%d)\n",
 				   instr->rd + instr->k,
 				   instr->r1, registers[instr->r1]);
+			return;
+
+		case OP_J:
+			printf("J     0x%x\n", instr->k);
 			return;
 
 		case OP_EXIT:

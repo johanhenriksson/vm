@@ -87,5 +87,6 @@ inline void op_prti(Instruction* i);
 void mop_add(word, byte, byte, byte, word);
 void mop_sw(word, byte, byte, word);
 void mop_lw(word, byte, byte, word);
+void mop_j(word, word);
 
 #endif
