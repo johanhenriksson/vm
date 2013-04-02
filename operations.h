@@ -6,28 +6,32 @@
  *
  * Aritmetic & Math
  * 
- * 00	NAP		Do nothing
+ * 00	NAP		Do nothing (nap)
+ *
  * 01	ADD 	Add
  * 02	SUB 	Subtract
- * 03	MUL		Multiply
+ * 03	MUL		Multiply (Int)
+ * 04	MULD 	Multiply DWORD (2 Regs)
  * 04	DIV		Divide
- * 05	REM		Remainder	
  * 06	POW		Power
- * 07	ADDF	Add floats
- * 08	SUBF	Subtract floats
- * 09	MULF 	Multiply floats
- * 09	DIVF	Divide floats
- * 0A	POWF 	Power (float)
- * 0B	EXP 	Exponential (float)
- * 0C	SIN 	Sine (float)
- * 0D	COS 	Cosine (float)
- * 0E	TAN 	Tangent (float)
- * 0F	ABS 	Absolute value
- * 10	ABSF	Absolute value (float)
- * 11	AND 	And
- * 12	OR 		Or
- * 13	NOT 	Not
- * 14	XOR		Exclusive Or
+ * 07	AND 	And
+ * 08	OR 		Or
+ * 09	NOT 	Not
+ * 0A	XOR		Exclusive Or
+ * 0B	ABS 	Absolute value
+ * 0C	ADDF	Add 		(float)
+ * 0D	SUBF	Subtract 	(float)
+ * 0E	MULF 	Multiply 	(float)
+ * 0F	DIVF	Divide 		(float)
+ * 10	POWF 	Power 		(float)
+ * 11	ABSF	Absolute  	(float)
+ * 12	EXP 	Exponential (float)
+ * 13	SIN 	Sine 		(float)
+ * 14	COS 	Cosine 		(float)
+ * 15	TAN 	Tangent 	(float)
+ * 16	ASIN	Arcsin 		(float)
+ * 17	ACOS	Arccos 		(float)
+ * 18	ATAN	Arctan 		(float)
  * 
  * Memory Manipulation
  *
@@ -46,8 +50,9 @@
  * 33	JZ		Jump on Zero
  * 34	JNZ		Jump on Not Zero
  * 35	JEQ		Jump on Equal
- * 36	JGT 	Jump on Greater Than
- * 37	JLT 	Jump on Less Than
+ * 36	JNQ		Jump on Not Equal
+ * 37	JGT 	Jump on Greater Than
+ * 38	JLT 	Jump on Less Than
  *
  * Stack Manipulation
  *
@@ -71,6 +76,11 @@
 inline void op_add(Instruction* i);
 inline void op_sub(Instruction* i);
 
+inline void op_exp(Instruction* i);
+inline void op_sin(Instruction* i);
+inline void op_cos(Instruction* i);
+inline void op_tan(Instruction* i);
+
 inline void op_lw(Instruction* i);
 inline void op_lh(Instruction* i);
 inline void op_lb(Instruction* i);
@@ -81,12 +91,28 @@ inline void op_sb(Instruction* i);
 inline void op_j(Instruction* i);
 inline void op_jr(Instruction* i);
 inline void op_jal(Instruction* i);
+inline void op_jz(Instruction* i);
+inline void op_jnz(Instruction* i);
+inline void op_jeq(Instruction* i);
+inline void op_jnq(Instruction* i);
+
+inline void op_push(Instruction* i);
+inline void op_pop(Instruction* i);
 
 inline void op_prti(Instruction* i);
 
 void mop_add(word, byte, byte, byte, word);
+void mop_sub(word, byte, byte, byte, word);
+
 void mop_sw(word, byte, byte, word);
 void mop_lw(word, byte, byte, word);
+
 void mop_j(word, word);
+void mop_jz(word, byte, word);
+void mop_jnz(word, byte, word);
+void mop_jeq(word, byte, byte, word);
+
+void mop_prti(word, byte);
+void mop_exit(word);
 
 #endif

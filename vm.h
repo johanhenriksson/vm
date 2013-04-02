@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 #define ENTRY_POINT 1024
 #define MEM_SIZE	2048
@@ -46,7 +47,7 @@ void print_reg(byte);
 #define R_ZERO		0
 #define R_K0		1
 #define R_K1		2
-#define R_SP		3
+#define R_SP		200
 #define R_FP
 #define R_GP
 #define R_RA		6
@@ -60,6 +61,11 @@ void print_reg(byte);
 #define OP_MUL		0x03
 #define OP_DIV		0x04
 
+#define OP_EXP		0x12
+#define OP_SIN		0x13
+#define OP_COS		0x14
+#define OP_TAN		0x15
+
 #define OP_LW 		0x20
 #define OP_LH		0x21
 #define OP_LB		0x22
@@ -68,7 +74,17 @@ void print_reg(byte);
 #define OP_SB 		0x25
 
 #define OP_J		0x30
-#define OP_JAL		0x31
+#define OP_JR		0x31
+#define OP_JAL		0x32
+#define OP_JZ 		0x33
+#define OP_JNZ		0x34
+#define OP_JEQ		0x35
+#define OP_JNQ		0x36
+#define OP_JGT		0x37
+#define OP_JLT		0x38
+
+#define OP_PUSH		0x40
+#define OP_POP		0x43
 
 #define OP_PRTS 	0xF0
 #define OP_PRTI		0xF1

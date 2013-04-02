@@ -5,8 +5,8 @@ bool running;
 int cycles;
 int pcounter;
 int exitval;
-int* stackptr;
 
+int* stackptr;
 byte* memory;
 word* registers;
 
@@ -18,30 +18,21 @@ int main(int argc, char* argv[])
 
 	vm_init();
 
-	int in = 532;
-	Instruction* i;
-	printf("Input: %d\n", in);
-	registers[1] = 4; // destination address register
+	mop_add(0, 1, 0, 0, 10); // r1 = 10
+	mop_add(8, 2, 0, 0, 20); // r2 = 20
+	mop_push(16, 1); // push r1
+	mop_push(24, 2); // push r2
+	mop_add(32, 2, 0, 0, 0); // r2 = 0
+	mop_sub(40, 1, 1, 0, 1); // r1--
+	mop_prti(48, 1); // print r1
+	mop_jnz(64, 1, 32);
+	mop_pop(72, 2); // pop r2
+	mop_pop(80, 1); // pop r1
+	mop_prti(88, 1); // print r1, should be 10
+	mop_prti(96, 2); // print r2
+	mop_exit(104);
 
-	mop_add(8,  1, R_ZERO, R_ZERO, 4);  // r1 = 4
-	mop_add(16, 2, R_ZERO, R_ZERO, in); // r2 = in
-
-	mop_sw(24, // Instruction address
-	   	   2,  // Source Word Register = r2
-		   1,  // Destination Address Register = r1
-		   0); // Offset = 0
-
-	mop_lw(32, // Instruction address
-		   1,  // Source address register = r1
-		   7,  // Destination register = r7
-		   0); // Offset
-	
-	mop_j(64, 8);
-
-	vm_run(8);
-
-	print_reg(2);
-	print_reg(7); // print destination r7
+	vm_run(0);
 
 	vm_exit();
 
@@ -132,7 +123,8 @@ void vm_exit(int val)
 	running = false;
 	exitval = val;
 
-	printf("Exited with value %d\n\n", val);
+	printf("Exited with value %d\n", val);
+	printf("Cycles: %d\n\n", cycles);
 }
 
 /**
@@ -148,36 +140,34 @@ void vm_exec()
 	{
 		case OP_NAP: break;
 
-		case OP_ADD:
-			op_add(op);
-			break;
+		case OP_ADD: 	op_add(op); 	break;
+		case OP_SUB: 	op_sub(op); 	break;
 
-		case OP_SUB:
-			op_sub(op);
-			break;
+		case OP_EXP:	op_exp(op);		break;
+		case OP_SIN:	op_sin(op);		break;
+		case OP_COS:	op_cos(op);		break;
+		case OP_TAN:	op_tan(op);		break;
 
-		case OP_LW:
-			op_lw(op);
-			break;
+		case OP_LW: 	op_lw(op);		break;
 
-		case OP_SW:
-			op_sw(op);
-			break;
+		case OP_SW:		op_sw(op);		break;
+		case OP_SB:		op_sb(op);		break;
 
-		case OP_SB:
-			op_sb(op);
-			break;
+		case OP_J:		op_j(op); 		return; // Jump
+		case OP_JR:		op_jr(op);		return;
+		case OP_JAL:	op_jal(op);		return;
+		case OP_JZ:		op_jz(op);		return;
+		case OP_JNZ:	op_jnz(op);		return;
+		case OP_JEQ:	op_jeq(op);		return;
+		case OP_JNQ:	op_jnq(op);		return;
 
-		case OP_J:
-			op_j(op);
-			return; // Jump
+		case OP_PUSH:	op_push(op);	break;
+		case OP_POP:	op_pop(op);		break;
 
-		case OP_PRTI:
-			op_prti(op);
-			break;
+		case OP_PRTI:	op_prti(op);	break;
 
-		case OP_EXIT:
-			vm_exit(op->k);
+		case OP_EXIT: 	
+			vm_exit(op->k); 
 			return;
 
 		/* Unsupported operation */
@@ -237,6 +227,13 @@ void print_instr(Instruction* instr)
 				   instr->r2, registers[instr->r2], 
 				   instr->k);
 			return;
+		case OP_SUB: 
+			printf("SUB   R%d = R%d(%d) - R%d(%d) - %d\n", 
+				   instr->rd, 
+				   instr->r1, registers[instr->r1], 
+				   instr->r2, registers[instr->r2], 
+				   instr->k);
+			return;
 
 		case OP_LW:
 			printf("LW    R%d = M[0x%x](%d)\n", 
@@ -253,7 +250,20 @@ void print_instr(Instruction* instr)
 		case OP_J:
 			printf("J     0x%x\n", instr->k);
 			return;
+		case OP_JNZ:
+			printf("JNZ   r%d(%d)!=0 0x%x\n", instr->r1, registers[instr->r1], instr->k);
+			return;
 
+		case OP_PUSH:
+			printf("PUSH  r%d(%d)\n", instr->r1, registers[instr->r1]);
+			return;
+		case OP_POP:
+			printf("POP   r%d\n", instr->rd);
+			return;
+
+		case OP_PRTI:
+			printf("PRTI  r%d\n", instr->r1);
+			return;
 		case OP_EXIT:
 			printf("EXIT  %d\n", instr->k);
 			return;
